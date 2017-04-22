@@ -2,7 +2,6 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.storage.StorageLevel;
 
 import java.util.Arrays;
 
@@ -28,9 +27,35 @@ public class Main {
 		).collect().toArray();
 
 		// get just data from stations in colorado
-		JavaRDD<String> coData = rawData.filter(
+		JavaRDD<Summary> coData = rawData.filter(
 				(Function<String, Boolean>) line -> Arrays.asList(coStations).contains(line.substring(0,11))
-		).persist(StorageLevel.MEMORY_ONLY());
+		).map((Function<String, Summary>) line -> {
+			Summary summary = new Summary();
+			summary.setID(line.substring(0,11));
+			summary.setYear(Integer.parseInt(line.substring(11,15)));
+			summary.setMonth(line.substring(15,17));
+			summary.setElement(line.substring(17,21));
+			int startV = 21;
+			int startM = 26;
+			int startQ = 27;
+			int startS = 28;
+
+			for (int i = 1; i <= 31; i++){
+				summary.setValue(i,Integer.parseInt(line.substring(startV,startV + 5)));
+				summary.setMFlag(i,line.charAt(startM));
+				summary.setQFlag(i, line.charAt(startQ));
+				summary.setSFlag(i, line.charAt(startS));
+
+				startV += 8;
+				startM += 8;
+				startQ += 8;
+				startS += 8;
+			}
+
+			return summary;
+		});
+
+
 
 		System.out.println("lines: " + coData.count());
 
