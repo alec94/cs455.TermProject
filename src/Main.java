@@ -58,8 +58,8 @@ public class Main {
 	}
 	public static void main(String[] args){
 
-		if (args.length < 3){
-			System.out.println("ERROR: not enough arguments\nUSAGE: <climate data> <stations data> <element>");
+		if (args.length < 4){
+			System.out.println("ERROR: not enough arguments\nUSAGE: <climate data> <stations data> <output> <element>");
 			System.exit(-1);
 		}
 
@@ -70,7 +70,7 @@ public class Main {
 		JavaSparkContext sc = new JavaSparkContext(conf);
 
 		JavaRDD<Summary> coData = initData(sc);
-		String element = args[2];
+		String element = args[3];
 
 		if (element.toLowerCase().equals("snow")) {
 			// get total monthly snowfall
@@ -78,7 +78,7 @@ public class Main {
 
 			System.out.println("coSnowfall lines: " + coSnowfall.count());
 
-			coSnowfall.coalesce(1, true).saveAsTextFile("hdfs://denver:30321/455TP/snow-out/");
+			coSnowfall.coalesce(1, true).saveAsTextFile(args[2]);
 			coSnowfall.unpersist();
 		} else if(element.toLowerCase().equals("temp")) {
 			// get monthly average min temp and max temp
@@ -86,7 +86,7 @@ public class Main {
 
 			System.out.println("coTemp lines: " + coTemp.count());
 
-			coTemp.coalesce(1, true).saveAsTextFile("path");
+			coTemp.coalesce(1, true).saveAsTextFile(args[2]);
 			coTemp.unpersist();
 		} else {
 			System.out.println("Unknown element: " + element);
