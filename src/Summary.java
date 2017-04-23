@@ -151,5 +151,19 @@ public class Summary implements Serializable {
 		}
 	}
 
-
+	public int getTotalSnowfall() {
+		if(this.Element.equals("SNOW")) {
+			int totalSnowfall = 0;
+			for(int i = 0; i < Values.length; i++) {
+				// Ensure data quality is good and not negative
+				// for characters use Character.MIN_VALUE for 'null', using 'null' will throw an error
+				if((QFlags[i] == ' ' || QFlags[i] == Character.MIN_VALUE) && Values[i] > 0) {
+					totalSnowfall += Values[i];
+				}
+			}
+			return totalSnowfall;
+		} else {
+			return 0;
+		}
+	}
 }
