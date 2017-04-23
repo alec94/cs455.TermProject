@@ -28,7 +28,7 @@ public class Temperature {
 						}
 					}
 
-					int avg = total / num;
+					int avg = num == 0 ? 0 : total / num;
 
 					// format: YEAR,MONTH,AVG
 					return year + "," + month + "," + avg;
