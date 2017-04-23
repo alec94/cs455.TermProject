@@ -60,6 +60,7 @@ public class Main {
 
 		if (args.length < 4) {
 			System.out.println("ERROR: not enough arguments\nUSAGE: <climate data> <stations data> <output> <element>");
+			System.out.println("\telements: snow, tmin, tmax, tavg");
 			System.exit(-1);
 		}
 
