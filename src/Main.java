@@ -64,11 +64,6 @@ public class Main {
 
 		// get total monthly snowfall
 		JavaRDD<String> coSnowfall = Snowfall.filterSnowfall(coData);
-
-		System.out.println("coSnowfall lines: " + coSnowfall.count());
-
-		coSnowfall.coalesce(1,true).saveAsTextFile("hdfs://denver:30321/455TP/snow-out/");
-
 		coData.unpersist();
 
 		sc.stop();

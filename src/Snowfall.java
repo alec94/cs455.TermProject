@@ -10,8 +10,8 @@ public class Snowfall {
 				(Function<Summary, Boolean>) line -> line.getElement().equals("SNOW")
 		).map(
 				(Function<Summary, String>) line -> {
-					String id = line.getID();
-					String date = line.getYear() + "/" + line.getMonth();
+					String year = String.valueOf(line.getYear());
+					String month = line.getMonth();
 					int snowfall = 0;
 					int[] values = line.getValues();
 					char[] qFlags = line.getQFlags();
@@ -22,9 +22,13 @@ public class Snowfall {
 						}
 					}
 
-					return id + " " + date + ": " + snowfall;
+					return year + "," + month + "," + snowfall;
 				}
 		).persist(StorageLevel.MEMORY_ONLY());
+
+		coSnowfall.coalesce(1,true).saveAsTextFile("hdfs://denver:30321/455TP/snow-out/");
+
+		coSnowfall.unpersist();
 
 		return coSnowfall;
 	}
