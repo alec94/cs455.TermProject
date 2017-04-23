@@ -26,10 +26,6 @@ public class Snowfall {
 				}
 		).persist(StorageLevel.MEMORY_ONLY());
 
-		coSnowfall.coalesce(1,true).saveAsTextFile("hdfs://denver:30321/455TP/snow-out/");
-
-		coSnowfall.unpersist();
-
 		return coSnowfall;
 	}
 
