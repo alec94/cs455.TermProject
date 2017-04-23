@@ -60,6 +60,7 @@ public class Main {
 
 		if (args.length < 3){
 			System.out.println("ERROR: not enough arguments\nUSAGE: <climate data> <stations data> <element>");
+			System.exit(-1);
 		}
 
 		dataPath = args[0].trim();
