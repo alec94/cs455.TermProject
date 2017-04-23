@@ -14,14 +14,14 @@ public class Summary implements Serializable {
 	private char[] QFlags;
 	private char[] SFlags;
 
-	public Summary(){
+	public Summary() {
 		this.Values = new int[31];
 		this.MFlags = new char[31];
 		this.QFlags = new char[31];
 		this.SFlags = new char[31];
 	}
 
-	public String toString(){
+	public String toString() {
 		String result = "";
 
 		result += ID + " ";
@@ -29,14 +29,14 @@ public class Summary implements Serializable {
 		result += Month + " ";
 		result += Element + ": ";
 
-		for (int i = 0; i < Values.length; i++){
+		for (int i = 0; i < Values.length; i++) {
 			result += Values[i] + "-" + MFlags[i] + "-" + QFlags[i] + SFlags[i];
 		}
 
 		return result;
 	}
 
-	public String getID(){
+	public String getID() {
 		return ID;
 	}
 
@@ -68,8 +68,8 @@ public class Summary implements Serializable {
 		Element = element;
 	}
 
-	public boolean setValue(int day, int value){
-		if (day - 1 > Values.length){
+	public boolean setValue(int day, int value) {
+		if (day - 1 > Values.length) {
 			return false;
 		} else {
 			Values[day - 1] = value;
@@ -77,8 +77,8 @@ public class Summary implements Serializable {
 		}
 	}
 
-	public boolean setMFlag(int day, char value){
-		if (day - 1 > MFlags.length){
+	public boolean setMFlag(int day, char value) {
+		if (day - 1 > MFlags.length) {
 			return false;
 		} else {
 			MFlags[day - 1] = value;
@@ -86,8 +86,8 @@ public class Summary implements Serializable {
 		}
 	}
 
-	public boolean setQFlag(int day, char value){
-		if (day - 1 > QFlags.length){
+	public boolean setQFlag(int day, char value) {
+		if (day - 1 > QFlags.length) {
 			return false;
 		} else {
 			QFlags[day - 1] = value;
@@ -95,69 +95,70 @@ public class Summary implements Serializable {
 		}
 	}
 
-	public boolean setSFlag(int day, char value){
-		if (day - 1 > SFlags.length){
+	public boolean setSFlag(int day, char value) {
+		if (day - 1 > SFlags.length) {
 			return false;
 		} else {
 			SFlags[day - 1] = value;
 			return true;
 		}
 	}
-	public int[] getValues(){
+
+	public int[] getValues() {
 		return Values;
 	}
 
-	public int getValues(int day){
-		if (day - 1 > Values.length){
+	public int getValues(int day) {
+		if (day - 1 > Values.length) {
 			return -9999;
-		}else {
+		} else {
 			return Values[day - 1];
 		}
 	}
 
-	public char[] getMFlags(){
+	public char[] getMFlags() {
 		return MFlags;
 	}
 
-	public char getMFlags(int day){
-		if (day - 1 > MFlags.length){
+	public char getMFlags(int day) {
+		if (day - 1 > MFlags.length) {
 			return Character.MIN_VALUE;
-		}else {
+		} else {
 			return MFlags[day - 1];
 		}
 	}
 
-	public char[] getQFlags(){
+	public char[] getQFlags() {
 		return QFlags;
 	}
 
-	public char getQFlags(int day){
-		if (day - 1 > QFlags.length){
+	public char getQFlags(int day) {
+		if (day - 1 > QFlags.length) {
 			return Character.MIN_VALUE;
-		}else {
+		} else {
 			return QFlags[day - 1];
 		}
 	}
 
-	public char[] getSFlags(){
+	public char[] getSFlags() {
 		return SFlags;
 	}
 
-	public char getSFlags(int day){
-		if (day - 1 > SFlags.length){
+	public char getSFlags(int day) {
+		if (day - 1 > SFlags.length) {
 			return Character.MIN_VALUE;
-		}else {
+		} else {
 			return SFlags[day - 1];
 		}
 	}
 
 	public int getTotalSnowfall() {
-		if(this.Element.equals("SNOW")) {
+		if (this.Element.equals("SNOW")) {
 			int totalSnowfall = 0;
-			for(int i = 0; i < Values.length; i++) {
+			for (int i = 0; i < Values.length; i++) {
 				// Ensure data quality is good and not negative
 				// for characters use Character.MIN_VALUE for 'null', using 'null' will throw an error
-				if((QFlags[i] == ' ' || QFlags[i] == Character.MIN_VALUE) && Values[i] > 0) {
+				if ((QFlags[i] == ' ' || QFlags[i] == Character.MIN_VALUE) && Values[i] > 0) {
 					totalSnowfall += Values[i];
 				}
 			}

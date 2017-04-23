@@ -15,9 +15,9 @@ public class Snowfall {
 					int snowfall = 0;
 					int[] values = line.getValues();
 					char[] qFlags = line.getQFlags();
-					for(int i = 0; i < values.length; i++) {
+					for (int i = 0; i < values.length; i++) {
 						// ensure values are valid
-						if((qFlags[i] == ' ' || qFlags[i] == Character.MIN_VALUE) && values[i] > 0) {
+						if ((qFlags[i] == ' ' || qFlags[i] == Character.MIN_VALUE) && values[i] > 0) {
 							snowfall += values[i];
 						}
 					}
