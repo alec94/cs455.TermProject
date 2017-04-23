@@ -2,6 +2,7 @@ import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.storage.StorageLevel;
 
 import java.util.Arrays;
 
@@ -12,7 +13,8 @@ import java.util.Arrays;
 public class Main {
 	public static void main(String[] args){
 
-		SparkConf conf = new SparkConf().setAppName("AuctionBid").setMaster("local");
+		System.out.println("Starting...");
+		SparkConf conf = new SparkConf().setAppName("cs455 Term Project");
 		JavaSparkContext sc = new JavaSparkContext(conf);
 
 		JavaRDD<String> rawData = sc.textFile("hdfs://denver:30321/455TP/data/daily");
@@ -28,11 +30,11 @@ public class Main {
 
 		// get just data from stations in colorado
 		JavaRDD<Summary> coData = rawData.filter(
-				(Function<String, Boolean>) line -> Arrays.asList(coStations).contains(line.substring(0,11))
+				(Function<String, Boolean>) line -> Arrays.asList(coStations).contains(line.substring(0,11)) && !line.substring(11,15).trim().equals("-9999")
 		).map((Function<String, Summary>) line -> {
 			Summary summary = new Summary();
 			summary.setID(line.substring(0,11));
-			summary.setYear(Integer.parseInt(line.substring(11,15)));
+			summary.setYear(Integer.parseInt(line.substring(11,15).trim()));
 			summary.setMonth(line.substring(15,17));
 			summary.setElement(line.substring(17,21));
 			int startV = 21;
@@ -41,7 +43,7 @@ public class Main {
 			int startS = 28;
 
 			for (int i = 1; i <= 31; i++){
-				summary.setValue(i,Integer.parseInt(line.substring(startV,startV + 5)));
+				summary.setValue(i,Integer.parseInt(line.substring(startV,startV + 5).trim()));
 				summary.setMFlag(i,line.charAt(startM));
 				summary.setQFlag(i, line.charAt(startQ));
 				summary.setSFlag(i, line.charAt(startS));
@@ -53,11 +55,7 @@ public class Main {
 			}
 
 			return summary;
-		});
-
-
-
-		System.out.println("lines: " + coData.count());
+		}).persist(StorageLevel.MEMORY_ONLY());
 
 		coData.coalesce(1,true).saveAsTextFile("hdfs://denver:30321/455TP/out");
 
