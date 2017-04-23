@@ -1,8 +1,9 @@
-
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.Function;
 
 public class Snowfall {
 
-	public JavaRDD<String> filterSnowfall(JavaRDD<Summary> coData) {
+	public static JavaRDD<String> filterSnowfall(JavaRDD<Summary> coData) {
 		// get total monthly snowfall
 		JavaRDD<String> coSnowfall = coData.filter(
 				(Function<Summary, Boolean>) line -> line.getElement().equals("SNOW")
@@ -22,7 +23,7 @@ public class Snowfall {
 
 					return id + " " + date + ": " + snowfall;
 				}
-		);
+		).persist(StorageLevel.MEMORY_ONLY());
 
 		return coSnowfall;
 	}
