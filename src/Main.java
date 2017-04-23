@@ -82,7 +82,7 @@ public class Main {
 
 		} else if (element.toLowerCase().equals("tmin")) {
 			// get monthly average of min temp
-			JavaRDD<String> coTemp = Temperature.filterMinTemperature(coData);
+			JavaRDD<String> coTemp = Temperature.filterTemperature(coData, "TMIN");
 
 			System.out.println("coTemp lines: " + coTemp.count());
 			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tmin");
@@ -90,10 +90,18 @@ public class Main {
 
 		} else if (element.toLowerCase().equals("tmax")) {
 			// get monthly average of max temp
-			JavaRDD<String> coTemp = Temperature.filterMaxTemperature(coData);
+			JavaRDD<String> coTemp = Temperature.filterTemperature(coData, "TMAX");
 
 			System.out.println("coTemp lines: " + coTemp.count());
 			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tmax");
+			coTemp.unpersist();
+
+		} else if (element.toLowerCase().equals("tavg")) {
+			// get monthly average of daily average temps
+			JavaRDD<String> coTemp = Temperature.filterTemperature(coData, "TAVG");
+
+			System.out.println("coTemp lines: " + coTemp.count());
+			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tavg");
 			coTemp.unpersist();
 
 		} else {

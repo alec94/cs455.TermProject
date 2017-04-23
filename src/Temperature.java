@@ -7,19 +7,11 @@ import org.apache.spark.storage.StorageLevel;
  */
 public class Temperature {
 
-	public static JavaRDD<String> filterMinTemperature(JavaRDD<Summary> coData) {
-		return filterTemperature(coData, true);
-	}
-
-	public static JavaRDD<String> filterMaxTemperature(JavaRDD<Summary> coData) {
-		return filterTemperature(coData, false);
-	}
-
-	private static JavaRDD<String> filterTemperature(JavaRDD<Summary> coData, boolean tmin) {
+	public static JavaRDD<String> filterTemperature (JavaRDD<Summary> coData, String requestedElement) {
 
 		JavaRDD<String> coTemp = coData.filter(
 				(Function<Summary, Boolean>) line ->
-					line.getElement().equals(tmin ? "TMIN" : "TMAX")
+					line.getElement().equals(requestedElement)
 		).map(
 				(Function<Summary, String>) line -> {
 					String year = String.valueOf(line.getYear());
