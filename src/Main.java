@@ -78,6 +78,15 @@ public class Main {
 			System.out.println("coSnowfall lines: " + coSnowfall.count());
 
 			coSnowfall.coalesce(1, true).saveAsTextFile("hdfs://denver:30321/455TP/snow-out/");
+			coSnowfall.unpersist();
+		} else if(element.toLowerCase().equals("temp")) {
+			// get monthly average min temp and max temp
+			JavaRDD<String> coTemp = Temperature.filterTemperature(coData);
+
+			System.out.println("coTemp lines: " + coTemp.count());
+
+			coTemp.coalesce(1, true).saveAsTextFile("path");
+			coTemp.unpersist();
 		} else {
 			System.out.println("Unknown element: " + element);
 		}
