@@ -1,5 +1,6 @@
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.storage.StorageLevel;
 
 public class Snowfall {
 
@@ -16,7 +17,7 @@ public class Snowfall {
 					char[] qFlags = line.getQFlags();
 					for(int i = 0; i < values.length; i++) {
 						// ensure values are valid
-						if((qFlags[i] == ' ' || qFlags[i] == null) && values[i] > 0) {
+						if((qFlags[i] == ' ' || qFlags[i] == Character.MIN_VALUE) && values[i] > 0) {
 							snowfall += values[i];
 						}
 					}
