@@ -150,4 +150,19 @@ public class Summary implements Serializable {
 			return SFlags[day - 1];
 		}
 	}
+
+	public int getTotalSnowfall() {
+		if(this.Element.equals("SNOW")) {
+			int totalSnowfall = 0;
+			for(int i = 0; i < Values.length; i++) {
+				// Ensure data quality is good and not negative
+				if((QFlags[i] == ' ' || QFlags[i] == null) && Values[i] > 0) {
+					totalSnowfall += Values[i];
+				}
+			}
+			return totalSnowfall;
+		} else {
+			return 0;
+		}
+	}
 }

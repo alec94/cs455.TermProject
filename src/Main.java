@@ -57,7 +57,24 @@ public class Main {
 			return summary;
 		}).persist(StorageLevel.MEMORY_ONLY());
 
-		coData.coalesce(1,true).saveAsTextFile("hdfs://denver:30321/455TP/out");
+		// get total monthly snowfall
+		JavaRDD<String> coSnowfall = coData.filter(
+				(Function<Summary, Boolean>) line -> line.getElement().equals("SNOW")
+		).map(
+				(Function<Summary, String>) line -> {
+					String id = line.getID();
+					String date = line.getYear() + "/" + line.getMonth();
+					int snowfall = line.getTotalSnowfall();
+
+					return id + " " + date + ": " + snowfall;
+				}
+		);
+
+		System.out.println("coSnowfall lines: " + coSnowfall.count());
+
+		coSnowfall.coalesce(1,true).saveAsTextFile("hdfs://denver:30321/455TP/snow-out/");
+
+		coSnowfall.unpersist();
 
 		coData.unpersist();
 
