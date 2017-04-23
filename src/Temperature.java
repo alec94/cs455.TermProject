@@ -7,38 +7,39 @@ import org.apache.spark.storage.StorageLevel;
  */
 public class Temperature {
 
-	public static JavaRDD<String> filterTemperature(JavaRDD<Summary> coData) {
+	public static JavaRDD<String> filterMinTemperature(JavaRDD<Summary> coData) {
+		return filterTemperature(coData, true);
+	}
+
+	public static JavaRDD<String> filterMaxTemperature(JavaRDD<Summary> coData) {
+		return filterTemperature(coData, false);
+	}
+
+	private static JavaRDD<String> filterTemperature(JavaRDD<Summary> coData, boolean tmin) {
 
 		JavaRDD<String> coTemp = coData.filter(
 				(Function<Summary, Boolean>) line ->
-					line.getElement().equals("TMIN") || line.getElement().equals("TMAX")
+					line.getElement().equals(tmin ? "TMIN" : "TMAX")
 		).map(
 				(Function<Summary, String>) line -> {
 					String year = String.valueOf(line.getYear());
 					String month = line.getMonth();
-					String element = line.getElement();
+
+					int total = 0, num = 0;
 					int[] values = line.getValues();
 					char[] qFlags = line.getQFlags();
 
-					int totalMin = 0, numMin = 0;
-					int totalMax = 0, numMax = 0;
 					for (int i = 0; i < values.length; i++) {
 						if ((qFlags[i] == ' ' || qFlags[i] == Character.MIN_VALUE) && values[i] > -9999) {
-							if (element.equals("TMIN")) {
-								totalMin += values[i];
-								numMin++;
-							} else {
-								totalMax += values[i];
-								numMax++;
-							}
+							total += values[i];
+							num++;
 						}
 					}
 
-					int avgMin = totalMin / numMin;
-					int avgMax = totalMax / numMax;
+					int avg = total / num;
 
-					// format: YEAR,MONTH,AVGMIN,AVGMAX
-					return year + "," + "," + month + "," + avgMin + "," + avgMax;
+					// format: YEAR,MONTH,AVG
+					return year + "," + month + "," + avg;
 				}
 		).persist(StorageLevel.MEMORY_ONLY());
 

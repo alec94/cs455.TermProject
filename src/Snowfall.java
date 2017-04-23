@@ -12,9 +12,11 @@ public class Snowfall {
 				(Function<Summary, String>) line -> {
 					String year = String.valueOf(line.getYear());
 					String month = line.getMonth();
+
 					int snowfall = 0;
 					int[] values = line.getValues();
 					char[] qFlags = line.getQFlags();
+
 					for (int i = 0; i < values.length; i++) {
 						// ensure values are valid
 						if ((qFlags[i] == ' ' || qFlags[i] == Character.MIN_VALUE) && values[i] > 0) {

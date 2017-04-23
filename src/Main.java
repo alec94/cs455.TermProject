@@ -56,9 +56,9 @@ public class Main {
 
 		return coData;
 	}
-	public static void main(String[] args){
+	public static void main(String[] args) {
 
-		if (args.length < 4){
+		if (args.length < 4) {
 			System.out.println("ERROR: not enough arguments\nUSAGE: <climate data> <stations data> <output> <element>");
 			System.exit(-1);
 		}
@@ -77,17 +77,25 @@ public class Main {
 			JavaRDD<String> coSnowfall = Snowfall.filterSnowfall(coData);
 
 			System.out.println("coSnowfall lines: " + coSnowfall.count());
-
-			coSnowfall.coalesce(1, true).saveAsTextFile(args[2]);
+			coSnowfall.coalesce(1, true).saveAsTextFile(args[2] + "/snow");
 			coSnowfall.unpersist();
-		} else if(element.toLowerCase().equals("temp")) {
-			// get monthly average min temp and max temp
-			JavaRDD<String> coTemp = Temperature.filterTemperature(coData);
+
+		} else if (element.toLowerCase().equals("tmin")) {
+			// get monthly average of min temp
+			JavaRDD<String> coTemp = Temperature.filterMinTemperature(coData);
 
 			System.out.println("coTemp lines: " + coTemp.count());
-
-			coTemp.coalesce(1, true).saveAsTextFile(args[2]);
+			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tmin");
 			coTemp.unpersist();
+
+		} else if (element.toLowerCase().equals("tmax")) {
+			// get monthly average of max temp
+			JavaRDD<String> coTemp = Temperature.filterMaxTemperature(coData);
+
+			System.out.println("coTemp lines: " + coTemp.count());
+			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tmax");
+			coTemp.unpersist();
+
 		} else {
 			System.out.println("Unknown element: " + element);
 		}
