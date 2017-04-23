@@ -156,7 +156,8 @@ public class Summary implements Serializable {
 			int totalSnowfall = 0;
 			for(int i = 0; i < Values.length; i++) {
 				// Ensure data quality is good and not negative
-				if((QFlags[i] == ' ' || QFlags[i] == null) && Values[i] > 0) {
+				// for characters use Character.MIN_VALUE for 'null', using 'null' will throw an error
+				if((QFlags[i] == ' ' || QFlags[i] == Character.MIN_VALUE) && Values[i] > 0) {
 					totalSnowfall += Values[i];
 				}
 			}

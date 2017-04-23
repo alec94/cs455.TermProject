@@ -11,14 +11,10 @@ import java.util.Arrays;
  * main for term project
  */
 public class Main {
-	public static void main(String[] args){
-
-		System.out.println("Starting...");
-		SparkConf conf = new SparkConf().setAppName("cs455 Term Project");
-		JavaSparkContext sc = new JavaSparkContext(conf);
-
-		JavaRDD<String> rawData = sc.textFile("hdfs://denver:30321/455TP/data/daily");
-		JavaRDD<String> stations = sc.textFile("hdfs://denver:30321/455TP/ghcnd-stations.txt");
+	private static final String inputPath = "hdfs://denver:30321/455TP/data/daily";
+	private static JavaRDD<Summary> initData(JavaSparkContext sparkContext){
+		JavaRDD<String> rawData = sparkContext.textFile(inputPath);
+		JavaRDD<String> stations = sparkContext.textFile("hdfs://denver:30321/455TP/ghcnd-stations.txt");
 
 		// get ids of stations in colorado
 		Object[] coStations;
@@ -56,6 +52,15 @@ public class Main {
 
 			return summary;
 		}).persist(StorageLevel.MEMORY_ONLY());
+
+		return coData;
+	}
+	public static void main(String[] args){
+
+		SparkConf conf = new SparkConf().setAppName("cs455 Term Project");
+		JavaSparkContext sc = new JavaSparkContext(conf);
+
+		JavaRDD<Summary> coData = initData(sc);
 
 		// get total monthly snowfall
 		JavaRDD<String> coSnowfall = coData.filter(
