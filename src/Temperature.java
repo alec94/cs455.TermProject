@@ -9,6 +9,11 @@ public class Temperature {
 
 	public static JavaRDD<String> filterTemperature (JavaRDD<Summary> coData, String requestedElement) {
 
+		if(!(requestedElement.equals("TAVG") || requestedElement.equals("TMIN") || requestedElement.equals("TMAX"))) {
+			System.err.println("Improper element requested; expected TAVG, TMIN, or TMAX");
+			System.exit(-1);
+		}
+
 		JavaRDD<String> coTemp = coData.filter(
 				(Function<Summary, Boolean>) line ->
 					line.getElement().equals(requestedElement)

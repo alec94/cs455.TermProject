@@ -13,17 +13,35 @@ import java.util.Arrays;
 public class Main {
 	private static String dataPath;
 	private static String stationsPath;
-	private static JavaRDD<Summary> initData(JavaSparkContext sparkContext){
+	private static JavaRDD<Summary> initData(JavaSparkContext sparkContext, String scope){
 		JavaRDD<String> rawData = sparkContext.textFile(dataPath);
 		JavaRDD<String> stations = sparkContext.textFile(stationsPath);
 
-		// get ids of stations in colorado
 		Object[] coStations;
-		coStations = stations.filter(
-				(Function<String, Boolean>) line -> line.substring(38,40).trim().equals("CO")
-		).map(
-				(Function<String, String>) line -> line.substring(0,11)
-		).collect().toArray();
+		if(scope.equals("co")) {
+			// get ids of stations in colorado
+			coStations = stations.filter(
+					(Function<String, Boolean>) line -> line.substring(38, 40).trim().equals("CO")
+			).map(
+					(Function<String, String>) line -> line.substring(0, 11)
+			).collect().toArray();
+		} else {
+			// get ids of stations along the front range
+			coStations = stations.filter(
+					(Function<String, Boolean>) line -> {
+						double latitude = Double.parseDouble(line.substring(12, 20).trim());
+						double longitude = Double.parseDouble(line.substring(21, 30).trim());
+						boolean isInFrontRange = false;
+						if(latitude < 40.671869 && latitude > 38.644019)
+							if(longitude < -104.729490 && longitude > -105.445208)
+								isInFrontRange = true;
+
+						return isInFrontRange;
+					}
+			).map(
+					(Function<String, String>) line -> line.substring(0, 11)
+			).collect().toArray();
+		}
 
 		// get just data from stations in colorado
 		JavaRDD<Summary> coData = rawData.filter(
@@ -70,46 +88,31 @@ public class Main {
 		SparkConf conf = new SparkConf().setAppName("cs455 Term Project");
 		JavaSparkContext sc = new JavaSparkContext(conf);
 
-		JavaRDD<Summary> coData = initData(sc);
 		String element = args[3];
 
 		if (element.toLowerCase().equals("snow")) {
-			// get total monthly snowfall
+			// get total monthly snowfall across the state
+			JavaRDD<Summary> coData = initData(sc, "co");
 			JavaRDD<String> coSnowfall = Snowfall.filterSnowfall(coData);
 
 			System.out.println("coSnowfall lines: " + coSnowfall.count());
 			coSnowfall.coalesce(1, true).saveAsTextFile(args[2] + "/snow");
 			coSnowfall.unpersist();
-
-		} else if (element.toLowerCase().equals("tmin")) {
-			// get monthly average of min temp
-			JavaRDD<String> coTemp = Temperature.filterTemperature(coData, "TMIN");
-
-			System.out.println("coTemp lines: " + coTemp.count());
-			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tmin");
-			coTemp.unpersist();
-
-		} else if (element.toLowerCase().equals("tmax")) {
-			// get monthly average of max temp
-			JavaRDD<String> coTemp = Temperature.filterTemperature(coData, "TMAX");
-
-			System.out.println("coTemp lines: " + coTemp.count());
-			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tmax");
-			coTemp.unpersist();
+			coData.unpersist();
 
 		} else if (element.toLowerCase().equals("tavg")) {
-			// get monthly average of daily average temps
-			JavaRDD<String> coTemp = Temperature.filterTemperature(coData, "TAVG");
+			// get monthly average of daily average temps across the Front Range
+			JavaRDD<Summary> frData = initData(sc, "fr");
+			JavaRDD<String> coTemp = Temperature.filterTemperature(frData, "TAVG");
 
 			System.out.println("coTemp lines: " + coTemp.count());
 			coTemp.coalesce(1, true).saveAsTextFile(args[2] + "/tavg");
 			coTemp.unpersist();
+			frData.unpersist();
 
 		} else {
 			System.out.println("Unknown element: " + element);
 		}
-
-		coData.unpersist();
 
 		sc.stop();
 
