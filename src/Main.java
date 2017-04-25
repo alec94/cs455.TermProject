@@ -32,6 +32,7 @@ public class Main {
 						double latitude = Double.parseDouble(line.substring(12, 20).trim());
 						double longitude = Double.parseDouble(line.substring(21, 30).trim());
 						boolean isInFrontRange = false;
+						// we define the front range as NW corner: LaPorte; SW corner: Fountain
 						if(latitude < 40.671869 && latitude > 38.644019)
 							if(longitude < -104.729490 && longitude > -105.445208)
 								isInFrontRange = true;
