@@ -46,15 +46,6 @@ public class Snowfall {
 						(acc, val) -> new Tuple2(acc._1 + val._1, acc._2 + val._2)
 		).coalesce(1, true).sortByKey();
 
-		/*
-		JavaPairRDD<String, Integer> finalStuff = snowAverages.mapToPair(
-				(PairFunction<String, Tuple2<Integer, Integer>, Tuple2<String, Integer>>) (s, t) -> {
-					int sum = s;
-					return new Tuple2(s, t._1 / t._2)
-				}
-		);
-		*/
-
 		JavaRDD<String> yearlySnowfall = snowAverages.map(
 				(Function<Tuple2<String, Tuple2<Integer, Integer>>, String>) s -> {
 					String year = s._1;

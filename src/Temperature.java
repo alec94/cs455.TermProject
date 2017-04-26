@@ -18,8 +18,7 @@ public class Temperature {
 		}
 
 		JavaRDD<String> coTemp = coData.filter(
-				(Function<Summary, Boolean>) line ->
-					line.getElement().equals(requestedElement)
+				(Function<Summary, Boolean>) line -> line.getElement().equals(requestedElement)
 		).map(
 				(Function<Summary, String>) line -> {
 					String year = String.valueOf(line.getYear());
@@ -63,7 +62,7 @@ public class Temperature {
 				}
 		).persist(StorageLevel.MEMORY_ONLY());
 
-		return coTemp;
+		return yearlyTemp;
 
 	}
 

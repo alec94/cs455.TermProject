@@ -103,7 +103,7 @@ public class Main {
 	private static void filterScope(JavaSparkContext sc, String outPath, String element, String scope) {
 
 		// error handling
-		if(!(element.equals("snow") || element.equals("tavg") || scope.equals("co") || scope.equals("fr") || scope.equals("rm"))) {
+		if(!((element.equals("snow") || element.equals("tavg")) && (scope.equals("co") || scope.equals("fr") || scope.equals("rm")))) {
 			// bad input, error and return
 			System.out.println("ERROR: Bad element or scope input\n" + usage);
 			System.exit(-1);
