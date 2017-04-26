@@ -2,6 +2,9 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.storage.StorageLevel;
 
+/**
+ * Created by Justin on 4/23/2017.
+ */
 public class Snowfall {
 
 	public static JavaRDD<String> filterSnowfall(JavaRDD<Summary> coData) {
