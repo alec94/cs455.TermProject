@@ -1,6 +1,9 @@
+import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.storage.StorageLevel;
+import scala.Tuple2;
 
 /**
  * Created by Justin on 4/23/2017.
@@ -36,7 +39,27 @@ public class Temperature {
 					int avg = num == 0 ? 0 : total / num;
 
 					// format: YEAR,MONTH,AVG
-					return year + "," + month + "," + avg;
+					return year + "," + avg;
+				}
+		).persist(StorageLevel.MEMORY_ONLY());
+
+		// aggregate month vals
+		JavaPairRDD<String, Tuple2<Integer, Integer>> pairRDD = coTemp.mapToPair(s -> {
+			String[] tokens = s.split(",");
+			return new Tuple2(tokens[0], new Tuple2(Integer.parseInt(tokens[1]), 1));
+		});
+
+		JavaPairRDD<String, Tuple2<Integer, Integer>> tempAverages = pairRDD.reduceByKey(
+				(Function2<Tuple2<Integer, Integer>, Tuple2<Integer, Integer>, Tuple2<Integer, Integer>>)
+						(acc, val) -> new Tuple2(acc._1 + val._1, acc._2 + val._2)
+		).coalesce(1, true).sortByKey();
+
+		JavaRDD<String> yearlyTemp = tempAverages.map(
+				(Function<Tuple2<String, Tuple2<Integer, Integer>>, String>) s -> {
+					String year = s._1;
+					Integer sum = s._2._1;
+					Integer count = s._2._2;
+					return year + "," + (sum / count);
 				}
 		).persist(StorageLevel.MEMORY_ONLY());
 
