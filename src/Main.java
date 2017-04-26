@@ -4,6 +4,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.storage.StorageLevel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -19,17 +20,22 @@ public class Main {
 	private static String stationsPath;
 
 	// front range rectangle
-	private static final double laporteLatitude = 40.671869;
-	private static final double laporteLongitude = -105.445208;
-	private static final double fountainLatitude = 38.644019;
-	private static final double fountainLongitude = -104.729490;
+	private static final double bellvueLatitude = 40.671869, bellvueLongitude = -105.445208,
+			fountainLatitude = 38.644019, fountainLongitude = -104.729490;
 
-	// rocky mountain rectangle, surrounds most
-	private static final double clarkLatitude = 40.705538;
-	private static final double clarkLongitude = -106.919242;
-	private static final double tarryallLatitude = 39.119314;
-	private static final double tarryallLongitude = -105.473954;
+	// rocky mountain rectangle, surrounds most ski areas
+	private static final double clarkLatitude = 40.705538, clarkLongitude = -106.919242,
+			tarryallLatitude = 39.119314, tarryallLongitude = -105.473954;
 
+	// great plains rectangle, pretty much all eastern-colorado agriculture
+	private static final double norfolkLatitude = 40.991869, norfolkLongitude = -105.232388,
+			threePointsLatitude = 36.994665, threePointsLongitude = -102.047930;
+
+	// fort collins rectangle
+	private static final double laPorteLatitude = 40.621286, laPorteLongitude = -105.155840,
+			windsorLatitude = 40.471282, windsorLongitude = -104.974364;
+
+	// initializes workable Summary objects from raw files
 	private static JavaRDD<Summary> initData(JavaSparkContext sparkContext, String scope){
 
 		JavaRDD<String> rawData = sparkContext.textFile(dataPath);
@@ -45,21 +51,38 @@ public class Main {
 					(Function<String, String>) line -> line.substring(0, 11)
 			).collect().toArray();
 
-		} else { // scope fr or rm
+		} else { // scope fr, rm, gp, fc
 			coStations = stations.filter(
 					(Function<String, Boolean>) line -> {
 						double latitude = Double.parseDouble(line.substring(12, 20).trim());
 						double longitude = Double.parseDouble(line.substring(21, 30).trim());
 						boolean isInScope = false;
-						if(scope.equals("fr")) {
-							if(latitude < laporteLatitude && latitude > fountainLatitude)
-								if(longitude < fountainLongitude && longitude > laporteLongitude)
-									isInScope = true;
-						} else { // scope.equals("rm")
-							if(latitude < clarkLatitude && latitude > tarryallLatitude)
-								if(longitude < tarryallLongitude && longitude > clarkLongitude)
-									isInScope = true;
+
+						double scopeNWLatitude = 0, scopeNWLongitude = 0, scopeSELatitude = 0, scopeSELongitude = 0;
+						switch(scope) {
+							case "fr": // scopes to front range
+								scopeNWLatitude = bellvueLatitude; scopeNWLongitude = bellvueLongitude;
+								scopeSELatitude = fountainLatitude; scopeSELongitude = fountainLongitude;
+								break;
+							case "rm": // scopes to rocky mountains
+								scopeNWLatitude = clarkLatitude; scopeNWLongitude = clarkLongitude;
+								scopeSELatitude = tarryallLatitude; scopeSELongitude = tarryallLongitude;
+								break;
+							case "gp": // scopes to great plains
+								scopeNWLatitude = norfolkLatitude; scopeNWLongitude = norfolkLongitude;
+								scopeSELatitude = threePointsLatitude; scopeSELongitude = threePointsLongitude;
+								break;
+							case "fc": // scopes to fort collins
+								scopeNWLatitude = laPorteLatitude; scopeNWLongitude = laPorteLongitude;
+								scopeSELatitude = windsorLatitude; scopeSELongitude = windsorLongitude;
+								break;
+							default: // main already error checks input
+								break;
 						}
+						// checks station's coordinates with chosen scope
+						if(latitude < scopeNWLatitude && latitude > scopeSELatitude)
+							if(longitude < scopeSELongitude && longitude > scopeNWLongitude)
+								isInScope = true;
 
 						return isInScope;
 					}
@@ -68,7 +91,7 @@ public class Main {
 			).collect().toArray();
 		}
 
-		// summarize data
+		// summarize data into summary objects
 		JavaRDD<Summary> coData = rawData.filter(
 				(Function<String, Boolean>) line -> Arrays.asList(coStations).contains(line.substring(0,11)) && !line.substring(11,15).trim().equals("-9999")
 		).map((Function<String, Summary>) line -> {
@@ -77,10 +100,7 @@ public class Main {
 			summary.setYear(Integer.parseInt(line.substring(11, 15).trim()));
 			summary.setMonth(line.substring(15, 17));
 			summary.setElement(line.substring(17, 21));
-			int startV = 21;
-			int startM = 26;
-			int startQ = 27;
-			int startS = 28;
+			int startV = 21, startM = 26, startQ = 27, startS = 28;
 
 			for (int i = 1; i <= 31; i++){
 				summary.setValue(i, Integer.parseInt(line.substring(startV,startV + 5).trim()));
@@ -103,7 +123,9 @@ public class Main {
 	private static void filterScope(JavaSparkContext sc, String outPath, String element, String scope) {
 
 		// error handling
-		if(!((element.equals("snow") || element.equals("tavg")) && (scope.equals("co") || scope.equals("fr") || scope.equals("rm")))) {
+		ArrayList<String> elements = new ArrayList<>(Arrays.asList("snow", "tavg"));
+		ArrayList<String> scopes = new ArrayList<>(Arrays.asList("co", "fr", "rm", "gp", "fc"));
+		if(!(elements.contains(element) && scopes.contains(scope))) {
 			// bad input, error and return
 			System.out.println("ERROR: Bad element or scope input\n" + usage);
 			System.exit(-1);
@@ -128,22 +150,27 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		if (args.length < 5) {
+		// ensure all arguments are being used
+		if (args.length != 5) {
 			System.out.println("ERROR: not enough arguments\n" + usage);
 			System.exit(-1);
 		}
 
+		// fill argument variables
 		dataPath = args[0].trim();
 		stationsPath = args[1].trim();
 		String outPath = args[2].trim();
 		String element = args[3].toLowerCase().trim();
 		String scope = args[4].toLowerCase().trim();
 
+		// config and context setup
 		SparkConf conf = new SparkConf().setAppName("cs455 Term Project");
 		JavaSparkContext sc = new JavaSparkContext(conf);
 
+		// runs filter
 		filterScope(sc, outPath, element, scope);
 
+		// finish
 		sc.stop();
 
 	}
