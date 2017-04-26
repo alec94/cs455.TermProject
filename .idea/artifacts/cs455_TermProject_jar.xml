@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="cs455.TermProject:jar">
+    <output-path>$PROJECT_DIR$</output-path>
+    <root id="archive" name="cs455.TermProject.jar">
+      <element id="module-output" name="cs455.TermProject" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/scalap-2.11.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/scala-library-2.11.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-core_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-repl_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-tags_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-yarn_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-sketch_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-unsafe_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-launcher_2.11-2.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/sparkJars/spark-network-shuffle_2.11-2.1.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
